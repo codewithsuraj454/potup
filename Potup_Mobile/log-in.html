@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Potup - Login / Sign Up</title>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+	<style>@import url('https://fonts.googleapis.com/css2?family=Edu+NSW+ACT+Cursive:wght@400..700&display=swap');</style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #000;
+            border: 1px solid #2f3336;
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .logo img {
+            width: 80px;
+            height: 80px;
+            fill: #fff;
+        }
+        h1 {
+            color: #e7e9ea;
+            font-size: 31px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+			font-family: "Edu NSW ACT Cursive", cursive;
+        }
+
+        /* Message Styles */
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            text-align: center;
+            animation: slideDown 0.3s ease;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        #errorMessage {
+            background-color: rgba(244, 33, 46, 0.1);
+            border: 1px solid #f4212e;
+            color: #f4212e;
+        }
+
+        #successMessage {
+            background-color: rgba(0, 186, 124, 0.1);
+            border: 1px solid #00ba7c;
+            color: #00ba7c;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            background-color: #16181c;
+            border-radius: 9999px;
+            padding: 4px;
+            margin-bottom: 30px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: #71767b;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 9999px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background-color: #1d9bf0;
+            color: #fff;
+        }
+
+        .toggle-btn:hover:not(.active) {
+            background-color: rgba(29, 155, 240, 0.1);
+            color: #1d9bf0;
+        }
+
+        /* Forms */
+        .form-container {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .form.active {
+            display: block;
+        }
+
+        .form.hidden {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            color: #71767b;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .input-group input[type="text"],
+        .input-group input[type="email"],
+        .input-group input[type="password"] {
+            width: 100%;
+            padding: 16px;
+            padding-right: 50px;
+            background-color: #000;
+            border: 1px solid #2f3336;
+            border-radius: 4px;
+            color: #e7e9ea;
+            font-size: 17px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #1d9bf0;
+            box-shadow: 0 0 0 1px #1d9bf0;
+        }
+
+        .input-group input::placeholder {
+            color: #71767b;
+        }
+
+        /* Password visibility toggle */
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #71767b;
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .password-toggle:hover {
+            color: #1d9bf0;
+        }
+
+        .eye-icon {
+            font-family: 'Material Icons', sans-serif;
+            font-size: 20px;
+        }
+
+        /* Gender Selection - Radio Buttons */
+        .gender-group {
+            margin-bottom: 25px;
+        }
+
+        .gender-group > label {
+            display: block;
+            color: #71767b;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .gender-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .gender-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .gender-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .gender-option label {
+            display: block;
+            padding: 14px 10px;
+            background-color: transparent;
+            border: 1px solid #2f3336;
+            border-radius: 9999px;
+            color: #e7e9ea;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .gender-option input[type="radio"]:hover + label {
+            background-color: rgba(29, 155, 240, 0.1);
+            border-color: #1d9bf0;
+        }
+
+        .gender-option input[type="radio"]:checked + label {
+            background-color: #1d9bf0;
+            border-color: #1d9bf0;
+            color: #fff;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background-color: #fff;
+            border: none;
+            border-radius: 9999px;
+            color: #0f1419;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            margin-bottom: 20px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background-color: #d7dbdc;
+        }
+
+        .submit-btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .submit-btn:disabled {
+            background-color: #87898a;
+            cursor: not-allowed;
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: #2f3336;
+        }
+
+        .divider span {
+            padding: 0 15px;
+            color: #71767b;
+            font-size: 14px;
+        }
+
+        /* Social Login Buttons */
+        .social-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #fff;
+            border: none;
+            border-radius: 9999px;
+            color: #0f1419;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            transition: background-color 0.2s ease;
+        }
+
+        .social-btn:hover {
+            background-color: #e6e6e6;
+        }
+
+        .social-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Footer Links */
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            color: #71767b;
+            font-size: 14px;
+        }
+
+        .footer-text a {
+            color: #1d9bf0;
+            text-decoration: none;
+        }
+
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+
+        /* Terms */
+        .terms {
+            color: #71767b;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-top: 20px;
+        }
+
+        .terms a {
+            color: #1d9bf0;
+            text-decoration: none;
+        }
+
+        .terms a:hover {
+            text-decoration: underline;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #0f1419;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px;
+                border: none;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .gender-options {
+                flex-wrap: wrap;
+            }
+
+            .gender-option {
+                min-width: calc(50% - 5px);
+            }
+
+            .gender-option:last-child {
+                flex: 100%;
+            }
+        }
+    </style>
+    <!-- Material Icons for eye icon -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- X Logo -->
+        <div class="logo">
+            <img src="https://i.ibb.co/NnJTphsw/Chat-GPT-Image-Dec-12-2025-03-11-52-PM-1-removebg-preview.png">
+        </div>
+		<h1>Potup</h1>
+
+        <!-- Error/Success Messages -->
+        <div id="errorMessage" class="message"></div>
+        <div id="successMessage" class="message"></div>
+
+        <!-- Toggle -->
+        <div class="toggle-container">
+            <button class="toggle-btn active" data-form="login" onclick="switchTab('login')">Log In</button>
+            <button class="toggle-btn" data-form="signup" onclick="switchTab('signup')">Sign Up</button>
+        </div>
+
+        <div class="form-container">
+            <!-- Login Form -->
+            <form class="form active" id="loginForm" onsubmit="handleLogin(event)">
+                <!-- Social Login -->
+                <button type="button" class="social-btn">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    Sign in with Google
+                </button>
+
+                <button type="button" class="social-btn">
+                    <svg viewBox="0 0 24 24" fill="#000">
+                        <path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12 0-.23-.02-.3-.03-.01-.06-.04-.22-.04-.39 0-1.15.572-2.27 1.206-2.98.804-.94 2.142-1.64 3.248-1.68.03.13.05.28.05.43zm4.565 15.71c-.03.07-.463 1.58-1.518 3.12-.945 1.34-1.94 2.71-3.43 2.71-1.517 0-1.9-.88-3.63-.88-1.698 0-2.302.91-3.67.91-1.377 0-2.332-1.26-3.428-2.8-1.287-1.82-2.323-4.63-2.323-7.28 0-4.28 2.797-6.55 5.552-6.55 1.448 0 2.675.95 3.6.95.865 0 2.222-1.01 3.902-1.01.613 0 2.886.06 4.374 2.19-.13.09-2.383 1.37-2.383 4.19 0 3.26 2.854 4.42 2.955 4.45z"/>
+                    </svg>
+                    Sign in with Apple
+                </button>
+
+                <div class="divider">
+                    <span>or</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="loginPassword">Password</label>
+                    <div class="password-container">
+                        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')">
+                            <span class="eye-icon material-icons">visibility_off</span>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="loginBtn">Log In</button>
+
+                <div class="footer-text">
+                    <a href="#">Forgot password?</a>
+                </div>
+            </form>
+
+            <!-- Signup Form -->
+            <form class="form hidden" id="signupForm" onsubmit="handleSignup(event)">
+                <div class="input-group">
+                    <label for="signupUsername">Username</label>
+                    <input type="text" id="signupUsername" placeholder="Choose a username (e.g., @johndoe)" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" placeholder="Enter your email" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="signupPassword">Password</label>
+                    <div class="password-container">
+                        <input type="password" id="signupPassword" placeholder="Create a password (min 6 characters)" required minlength="6">
+                        <button type="button" class="password-toggle" onclick="togglePassword('signupPassword')">
+                            <span class="eye-icon material-icons">visibility_off</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="gender-group">
+                    <label>Gender</label>
+                    <div class="gender-options">
+                        <div class="gender-option">
+                            <input type="radio" id="male" name="gender" value="male" required>
+                            <label for="male">Male</label>
+                        </div>
+                        <div class="gender-option">
+                            <input type="radio" id="female" name="gender" value="female">
+                            <label for="female">Female</label>
+                        </div>
+                        <div class="gender-option">
+                            <input type="radio" id="other" name="gender" value="other">
+                            <label for="other">Other</label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="signupBtn">Create Account</button>
+
+                <p class="terms">
+                    By signing up, you agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>, including <a href="#">Cookie Use</a>.
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Supabase client
+        const SUPABASE_URL = 'https://hdauaegfmenlzhqnfgvy.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkYXVhZWdmbWVubHpocW5mZ3Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NDc0MzAsImV4cCI6MjA4MTAyMzQzMH0.8IHXBnKm6pE5cwBGPo7m0eIWdtVPsQDL1CUozebpNDE';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        /* ================= AUTO REDIRECT ================= */
+        document.addEventListener("DOMContentLoaded", () => {
+            const existingId = localStorage.getItem("id");
+            if (existingId) {
+                window.location.href = "home.html";
+            }
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            successDiv.classList.remove('show');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            setTimeout(() => errorDiv.classList.remove('show'), 5000);
+        }
+
+        function showSuccess(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            errorDiv.classList.remove('show');
+            successDiv.textContent = message;
+            successDiv.classList.add('show');
+            setTimeout(() => successDiv.classList.remove('show'), 5000);
+        }
+
+        function switchTab(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const formTitle = document.getElementById('formTitle');
+            const toggleBtns = document.querySelectorAll('.toggle-btn');
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+
+            errorDiv.classList.remove('show');
+            successDiv.classList.remove('show');
+
+            // Update toggle buttons
+            toggleBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.form === tab) {
+                    btn.classList.add('active');
+                }
+            });
+
+            if (tab === 'login') {
+                loginForm.classList.add('active');
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                signupForm.classList.remove('active');
+                formTitle.textContent = 'Sign in to X';
+            } else {
+                loginForm.classList.remove('active');
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+                signupForm.classList.add('active');
+                formTitle.textContent = 'Join X today';
+            }
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.parentElement.querySelector('.eye-icon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = 'visibility';
+            } else {
+                input.type = 'password';
+                icon.textContent = 'visibility_off';
+            }
+        }
+
+        async function handleSignup(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('signupUsername').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const genderElement = document.querySelector('input[name="gender"]:checked');
+            const gender = genderElement ? genderElement.value : null;
+            const signupBtn = document.getElementById('signupBtn');
+
+            // Validation
+            if (!gender) {
+                showError('Please select your gender.');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('Password must be at least 6 characters long.');
+                return;
+            }
+
+            const formattedUsername = username.startsWith('@') ? username : `@${username}`;
+
+            try {
+                signupBtn.disabled = true;
+                signupBtn.innerHTML = '<span class="spinner"></span>Creating Account...';
+
+                const { data, error } = await supabase
+                    .from('user_profiles')
+                    .insert([{
+                        user_id: formattedUsername,
+                        email: email,
+                        password: password,
+                        gender: gender,
+                        followers: 0,
+                        following: 0,
+                        posts: 0
+                    }])
+                    .select();
+
+                if (error) {
+                    if (error.code === '23505') {
+                        if (error.message.includes('user_id')) {
+                            showError('Username already taken. Please choose another.');
+                        } else if (error.message.includes('email')) {
+                            showError('Email already registered. Please login instead.');
+                        } else {
+                            showError('This username or email is already taken.');
+                        }
+                    } else {
+                        showError('Signup failed: ' + error.message);
+                    }
+                } else {
+                    showSuccess('Account created successfully! Redirecting...');
+                    
+                    // AUTO LOGIN AFTER SIGNUP
+                    localStorage.setItem("id", data[0].id);
+
+                    setTimeout(() => {
+                        window.location.href = "home.html";
+                    }, 1000);
+                }
+            } catch (err) {
+                showError('An unexpected error occurred. Please try again.');
+                console.error(err);
+            } finally {
+                signupBtn.disabled = false;
+                signupBtn.textContent = 'Create Account';
+            }
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const loginBtn = document.getElementById('loginBtn');
+
+            try {
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<span class="spinner"></span>Logging in...';
+
+                const { data, error } = await supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .eq('email', email)
+                    .eq('password', password)
+                    .single();
+
+                if (error || !data) {
+                    showError('Invalid email or password. Please try again.');
+                } else {
+                    showSuccess(`Welcome back, ${data.user_id}!`);
+
+                    // SAVE UUID FOR MAIN PAGE
+                    localStorage.setItem("id", data.id);
+
+                    // REDIRECT
+                    setTimeout(() => {
+                        window.location.href = "home.html";
+                    }, 800);
+                }
+            } catch (err) {
+                showError('An unexpected error occurred. Please try again.');
+                console.error(err);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Log In';
+            }
+        }
+
+        // Add input focus animations
+        document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('focused');
+            });
+        });
+    </script>
+</body>
+</html>
