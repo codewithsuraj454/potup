@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secure Checkout | Dark Mode</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
+.glass-card { background: #1e293b; border: 1px solid #334155; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+.success-check { animation: scaleIn 0.5s ease-out; }
+@keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+</style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen p-4">
+
+<div class="w-full max-w-md glass-card overflow-hidden">
+    <div class="bg-indigo-600 p-8 text-center">
+        <span class="bg-indigo-400/30 text-xs font-bold px-3 py-1 rounded-full uppercase">Checkout</span>
+        <h1 class="text-2xl font-bold mt-2">Potup Badges</h1>
+        <div class="mt-4 text-4xl font-extrabold">₹200.00</div>
+    </div>
+
+    <div class="p-8">
+        <div id="payment-step">
+            <div id="desktop-view" class="hidden flex flex-col items-center">
+                <p class="text-slate-400 text-xs font-bold uppercase mb-6">Scan to Pay</p>
+                <div class="p-4 bg-white rounded-2xl mb-4">
+                    <div id="qrcode"></div>
+                </div>
+            </div>
+
+            <div id="mobile-view" class="hidden">
+                <button onclick="payViaIntent()"
+                    class="w-full p-4 bg-slate-800 border border-slate-700 rounded-2xl font-bold">
+                    Open UPI App
+                </button>
+            </div>
+
+            <button onclick="showVerify()"
+                class="w-full mt-8 py-4 bg-indigo-500 rounded-2xl font-bold">
+                I've Completed Payment
+            </button>
+        </div>
+
+        <div id="verify-step" class="hidden">
+            <h2 class="text-xl font-bold mb-4">Verify Transaction</h2>
+            <input type="number" id="utr-input" placeholder="123456789012"
+                class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-center text-xl font-mono mb-2">
+            <p id="error-msg" class="text-red-400 text-xs text-center hidden">
+                Enter a valid 12-digit UTR
+            </p>
+
+            <button onclick="handleSuccess()"
+                class="w-full mt-4 py-4 bg-emerald-500 rounded-2xl font-bold">
+                Submit & Verify
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="success-overlay"
+     class="fixed inset-0 bg-black/90 hidden flex items-center justify-center">
+    <div class="text-center">
+        <div class="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center mb-4">✓</div>
+        <h1 class="text-2xl font-bold">Elite Badge Added</h1>
+        <p class="text-slate-400 mt-2">Redirecting…</p>
+    </div>
+</div>
+
+<script>
+/* ================= CONFIG ================= */
+const UPI_ID = "9777441431@mbk";
+const NAME = "Potup";
+const AMOUNT = "200.00";
+
+const upiString =
+  `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(NAME)}&am=${AMOUNT}&cu=INR`;
+
+/* ✅ SUPABASE CLIENT (ONLY ONE) */
+const supabaseClient = supabase.createClient(
+  "https://hdauaegfmenlzhqnfgvy.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkYXVhZWdmbWVubHpocW5mZ3Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NDc0MzAsImV4cCI6MjA4MTAyMzQzMH0.8IHXBnKm6pE5cwBGPo7m0eIWdtVPsQDL1CUozebpNDE"
+);
+
+/* ================= paycheck ================= */
+async function checkEliteOwnership() {
+  const userId = localStorage.getItem("id");
+
+  if (!userId) {
+    // Not logged in – allow page to load normally
+    return;
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("user_profiles")
+      .select("badges")
+      .eq("id", userId)
+      .single();
+
+    if (error) throw error;
+
+    const badges = data?.badges ?? "";
+
+    // Case-insensitive, comma-safe check
+    const ownsElite = /(^|,\s*)elite(\s*,|$)/i.test(badges);
+
+    if (ownsElite) {
+      // Already owns Elite → redirect immediately
+      window.location.replace("home.html");
+    }
+
+  } catch (err) {
+    console.error("Elite check failed:", err.message);
+    // Fail open: do not block checkout if check fails
+  }
+}
+
+
+/* ================= INIT ================= */
+window.onload = async function () {
+  await checkEliteOwnership(); // 🔑 FIRST
+
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  if (isMobile) {
+    document.getElementById("mobile-view").classList.remove("hidden");
+  } else {
+    document.getElementById("desktop-view").classList.remove("hidden");
+    new QRCode(document.getElementById("qrcode"), {
+      text: upiString,
+      width: 180,
+      height: 180
+    });
+  }
+};
+
+
+/* ================= FLOW ================= */
+function payViaIntent() {
+  window.location.href = upiString;
+}
+
+function showVerify() {
+  document.getElementById("payment-step").classList.add("hidden");
+  document.getElementById("verify-step").classList.remove("hidden");
+}
+
+/* ================= BADGE UPDATE ================= */
+async function handleSuccess() {
+  const utr = document.getElementById("utr-input").value;
+  const error = document.getElementById("error-msg");
+
+  if (utr.length !== 12) {
+    error.classList.remove("hidden");
+    return;
+  }
+  error.classList.add("hidden");
+
+  const userId = localStorage.getItem("id");
+  if (!userId) {
+    alert("User not logged in");
+    return;
+  }
+
+  try {
+    await supabaseClient.rpc("add_elite_badge_text", {
+      uid: userId
+    });
+
+   document.getElementById("success-overlay").classList.remove("hidden");
+   setTimeout(() => {
+   window.location.replace("home.html");
+   }, 3000);
+
+
+  } catch (err) {
+    alert("Database error: " + err.message);
+  }
+}
+
+</script>
+
+</body>
+</html>

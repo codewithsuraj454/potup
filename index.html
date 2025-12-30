@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Potup</title>
     <style>@import url('https://fonts.googleapis.com/css2?family=Edu+NSW+ACT+Cursive:wght@400..700&display=swap');</style>
+	<link rel="icon" type="image/png" href="ChatGPT_Image_Dec_12__2025__03_11_52_PM__1_-removebg-preview.png">
     <style>
         body {
             align-items: center;
@@ -32,7 +33,7 @@
 </head>
 <body>
     <div class="div">
-        <img src="https://i.ibb.co/NnJTphsw/Chat-GPT-Image-Dec-12-2025-03-11-52-PM-1-removebg-preview.png">
+        <img src="ChatGPT_Image_Dec_12__2025__03_11_52_PM__1_-removebg-preview.png">
     </div>
     
     <script>
@@ -43,6 +44,18 @@
                 window.location.href = 'log-in.html';
             }
         }, 1000);
+document.addEventListener('contextmenu', function (e) {
+  e.preventDefault();
+});
+document.addEventListener('keydown', function (e) {
+  if (
+    e.key === 'F12' ||
+    (e.ctrlKey && e.shiftKey && ['I', 'C', 'J'].includes(e.key)) ||
+    (e.ctrlKey && e.key === 'U')
+  ) {
+    e.preventDefault();
+  }
+});
     </script>
 </body>
 </html>

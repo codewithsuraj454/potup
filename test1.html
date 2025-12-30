@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Potup</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+      background-color: rgb(201, 204, 203);
+    }
+    .nav {
+        position: fixed;
+      justify-content: space-around;
+      align-items: left;
+      background-color: #ffffff;
+      padding: 1px 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-top: 30px;
+      width: 150px;
+      border-radius: 23px;
+      border-color: #131313;
+      border-width: 20px;
+      margin-left: 20px;
+    }
+    .nav-item {
+      align-items: center;
+      flex-direction: column;
+      align-items: center;
+      color: #1b1818;
+      margin-top: 25px;
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: bold;
+
+      cursor: pointer;
+      padding: 5px 10px;
+      margin-left: 5px;
+      margin-bottom: 25px;
+
+    }
+    .nav-item.active, .nav-item:hover {
+      background-color: #e0e0e0;
+      border-radius: 10px;
+    }
+    .nav-item .material-icons {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+    .notification-badge {
+      background-color: red;
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 12px;
+      position: absolute;
+      top: 5px;
+      right: 10px;
+    }
+    .hidden {
+      display: none;
+    }
+
+  </style>
+</head>
+<body>
+    <div class="nav">
+          <div class="nav-item active" data-page="homePage">
+    <span class="material-icons">home</span>
+    <span>Home</span>
+  </div>
+  
+  <div class="nav-item ai-nav" data-page="aiPage">
+    <span class="material-icons">auto_awesome</span>
+    <span>Potup AI</span>
+  </div>
+  
+  <div class="nav-item" data-page="notificationsPage">
+    <span class="material-icons">notifications</span>
+    <span>Notifications</span>
+    <span id="notificationBadge" class="notification-badge hidden">1</span>
+  </div>
+  
+  <div class="nav-item" data-page="profilePage">
+    <span class="material-icons">person</span>
+    <span>Profile</span>
+  </div>
+  
+  <div class="nav-item" data-page="settingsPage">
+    <span class="material-icons">settings</span>
+    <span>Settings</span>
+  </div>
+    </div>
+    <div class="post">
+        <button><span class="material-icons">add</span>Post</button>
+    </div>
+  
+</body>
+</html>

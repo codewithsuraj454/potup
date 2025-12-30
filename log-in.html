@@ -6,6 +6,7 @@
     <title>Potup - Login / Sign Up</title>
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+	<link rel="icon" type="image/png" href="ChatGPT_Image_Dec_12__2025__03_11_52_PM__1_-removebg-preview.png">
 	<style>@import url('https://fonts.googleapis.com/css2?family=Edu+NSW+ACT+Cursive:wght@400..700&display=swap');</style>
     <style>
         * {
@@ -546,207 +547,215 @@
     </div>
 
     <script>
-        // Initialize Supabase client
-        window.SUPABASE_URL = 'https://hdauaegfmenlzhqnfgvy.supabase.co';
-        window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkYXVhZWdmbWVubHpocW5mZ3Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NDc0MzAsImV4cCI6MjA4MTAyMzQzMH0.8IHXBnKm6pE5cwBGPo7m0eIWdtVPsQDL1CUozebpNDE';
-        
-        window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Initialize Supabase client
+window.SUPABASE_URL = 'https://hdauaegfmenlzhqnfgvy.supabase.co';
+window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkYXVhZWdmbWVubHpocW5mZ3Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NDc0MzAsImV4cCI6MjA4MTAyMzQzMH0.8IHXBnKm6pE5cwBGPo7m0eIWdtVPsQDL1CUozebpNDE';
 
-        /* ================= AUTO REDIRECT ================= */
-        document.addEventListener("DOMContentLoaded", () => {
-            const existingId = localStorage.getItem("id");
-            if (existingId) {
+window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ================= AUTO REDIRECT ================= */
+document.addEventListener("DOMContentLoaded", () => {
+    const existingId = localStorage.getItem("id");
+    if (existingId) {
+        window.location.href = "home.html";
+    }
+});
+
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    const successDiv = document.getElementById('successMessage');
+    successDiv.classList.remove('show');
+    errorDiv.textContent = message;
+    errorDiv.classList.add('show');
+    setTimeout(() => errorDiv.classList.remove('show'), 5000);
+}
+
+function showSuccess(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    const successDiv = document.getElementById('successMessage');
+    errorDiv.classList.remove('show');
+    successDiv.textContent = message;
+    successDiv.classList.add('show');
+    setTimeout(() => successDiv.classList.remove('show'), 5000);
+}
+
+function switchTab(tab) {
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const toggleBtns = document.querySelectorAll('.toggle-btn');
+    const errorDiv = document.getElementById('errorMessage');
+    const successDiv = document.getElementById('successMessage');
+
+    errorDiv.classList.remove('show');
+    successDiv.classList.remove('show');
+
+    // Update toggle buttons
+    toggleBtns.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.form === tab) {
+            btn.classList.add('active');
+        }
+    });
+
+    if (tab === 'login') {
+        loginForm.classList.add('active');
+        loginForm.classList.remove('hidden');
+        signupForm.classList.add('hidden');
+        signupForm.classList.remove('active');
+    } else {
+        loginForm.classList.remove('active');
+        loginForm.classList.add('hidden');
+        signupForm.classList.remove('hidden');
+        signupForm.classList.add('active');
+    }
+}
+
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const icon = input.parentElement.querySelector('.eye-icon');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.textContent = 'visibility';
+    } else {
+        input.type = 'password';
+        icon.textContent = 'visibility_off';
+    }
+}
+
+async function handleSignup(event) {
+    event.preventDefault();
+    
+    const username = document.getElementById('signupUsername').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const genderElement = document.querySelector('input[name="gender"]:checked');
+    const gender = genderElement ? genderElement.value : null;
+    const signupBtn = document.getElementById('signupBtn');
+
+    // Validation
+    if (!gender) {
+        showError('Please select your gender.');
+        return;
+    }
+
+    if (password.length < 6) {
+        showError('Password must be at least 6 characters long.');
+        return;
+    }
+
+    const formattedUsername = username.startsWith('@') ? username : `@${username}`;
+
+    try {
+        signupBtn.disabled = true;
+        signupBtn.innerHTML = '<span class="spinner"></span>Creating Account...';
+
+        const { data, error } = await supabase
+            .from('user_profiles')
+            .insert([{
+                user_id: formattedUsername,
+                email: email,
+                password: password,
+                gender: gender,
+                followers: 0,
+                following: 0,
+                posts: 0
+            }])
+            .select();
+
+        if (error) {
+            if (error.code === '23505') {
+                if (error.message.includes('user_id')) {
+                    showError('Username already taken. Please choose another.');
+                } else if (error.message.includes('email')) {
+                    showError('Email already registered. Please login instead.');
+                } else {
+                    showError('This username or email is already taken.');
+                }
+            } else {
+                showError('Signup failed: ' + error.message);
+            }
+        } else {
+            showSuccess('Account created successfully! Redirecting...');
+            
+            // AUTO LOGIN AFTER SIGNUP
+            localStorage.setItem("id", data[0].id);
+
+            setTimeout(() => {
                 window.location.href = "home.html";
-            }
-        });
-
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            const successDiv = document.getElementById('successMessage');
-            successDiv.classList.remove('show');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-            setTimeout(() => errorDiv.classList.remove('show'), 5000);
+            }, 1000);
         }
+    } catch (err) {
+        showError('An unexpected error occurred. Please try again.');
+        console.error(err);
+    } finally {
+        signupBtn.disabled = false;
+        signupBtn.textContent = 'Create Account';
+    }
+}
 
-        function showSuccess(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            const successDiv = document.getElementById('successMessage');
-            errorDiv.classList.remove('show');
-            successDiv.textContent = message;
-            successDiv.classList.add('show');
-            setTimeout(() => successDiv.classList.remove('show'), 5000);
+async function handleLogin(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const loginBtn = document.getElementById('loginBtn');
+
+    try {
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<span class="spinner"></span>Logging in...';
+
+        const { data, error } = await supabase
+            .from('user_profiles')
+            .select('*')
+            .eq('email', email)
+            .eq('password', password)
+            .single();
+
+        if (error || !data) {
+            showError('Invalid email or password. Please try again.');
+        } else {
+            showSuccess(`Welcome back, ${data.user_id}!`);
+
+            // SAVE UUID FOR MAIN PAGE
+            localStorage.setItem("id", data.id);
+
+            // REDIRECT
+            setTimeout(() => {
+                window.location.href = "home.html";
+            }, 800);
         }
+    } catch (err) {
+        showError('An unexpected error occurred. Please try again.');
+        console.error(err);
+    } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Log In';
+    }
+}
 
-        function switchTab(tab) {
-            const loginForm = document.getElementById('loginForm');
-            const signupForm = document.getElementById('signupForm');
-            const formTitle = document.getElementById('formTitle');
-            const toggleBtns = document.querySelectorAll('.toggle-btn');
-            const errorDiv = document.getElementById('errorMessage');
-            const successDiv = document.getElementById('successMessage');
-
-            errorDiv.classList.remove('show');
-            successDiv.classList.remove('show');
-
-            // Update toggle buttons
-            toggleBtns.forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.form === tab) {
-                    btn.classList.add('active');
-                }
-            });
-
-            if (tab === 'login') {
-                loginForm.classList.add('active');
-                loginForm.classList.remove('hidden');
-                signupForm.classList.add('hidden');
-                signupForm.classList.remove('active');
-                formTitle.textContent = 'Sign in to X';
-            } else {
-                loginForm.classList.remove('active');
-                loginForm.classList.add('hidden');
-                signupForm.classList.remove('hidden');
-                signupForm.classList.add('active');
-                formTitle.textContent = 'Join X today';
-            }
-        }
-
-        function togglePassword(inputId) {
-            const input = document.getElementById(inputId);
-            const icon = input.parentElement.querySelector('.eye-icon');
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.textContent = 'visibility';
-            } else {
-                input.type = 'password';
-                icon.textContent = 'visibility_off';
-            }
-        }
-
-        async function handleSignup(event) {
-            event.preventDefault();
-            
-            const username = document.getElementById('signupUsername').value.trim();
-            const email = document.getElementById('signupEmail').value.trim();
-            const password = document.getElementById('signupPassword').value;
-            const genderElement = document.querySelector('input[name="gender"]:checked');
-            const gender = genderElement ? genderElement.value : null;
-            const signupBtn = document.getElementById('signupBtn');
-
-            // Validation
-            if (!gender) {
-                showError('Please select your gender.');
-                return;
-            }
-
-            if (password.length < 6) {
-                showError('Password must be at least 6 characters long.');
-                return;
-            }
-
-            const formattedUsername = username.startsWith('@') ? username : `@${username}`;
-
-            try {
-                signupBtn.disabled = true;
-                signupBtn.innerHTML = '<span class="spinner"></span>Creating Account...';
-
-                const { data, error } = await supabase
-                    .from('user_profiles')
-                    .insert([{
-                        user_id: formattedUsername,
-                        email: email,
-                        password: password,
-                        gender: gender,
-                        followers: 0,
-                        following: 0,
-                        posts: 0
-                    }])
-                    .select();
-
-                if (error) {
-                    if (error.code === '23505') {
-                        if (error.message.includes('user_id')) {
-                            showError('Username already taken. Please choose another.');
-                        } else if (error.message.includes('email')) {
-                            showError('Email already registered. Please login instead.');
-                        } else {
-                            showError('This username or email is already taken.');
-                        }
-                    } else {
-                        showError('Signup failed: ' + error.message);
-                    }
-                } else {
-                    showSuccess('Account created successfully! Redirecting...');
-                    
-                    // AUTO LOGIN AFTER SIGNUP
-                    localStorage.setItem("id", data[0].id);
-
-                    setTimeout(() => {
-                        window.location.href = "home.html";
-                    }, 1000);
-                }
-            } catch (err) {
-                showError('An unexpected error occurred. Please try again.');
-                console.error(err);
-            } finally {
-                signupBtn.disabled = false;
-                signupBtn.textContent = 'Create Account';
-            }
-        }
-
-        async function handleLogin(event) {
-            event.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const loginBtn = document.getElementById('loginBtn');
-
-            try {
-                loginBtn.disabled = true;
-                loginBtn.innerHTML = '<span class="spinner"></span>Logging in...';
-
-                const { data, error } = await supabase
-                    .from('user_profiles')
-                    .select('*')
-                    .eq('email', email)
-                    .eq('password', password)
-                    .single();
-
-                if (error || !data) {
-                    showError('Invalid email or password. Please try again.');
-                } else {
-                    showSuccess(`Welcome back, ${data.user_id}!`);
-
-                    // SAVE UUID FOR MAIN PAGE
-                    localStorage.setItem("id", data.id);
-
-                    // REDIRECT
-                    setTimeout(() => {
-                        window.location.href = "home.html";
-                    }, 800);
-                }
-            } catch (err) {
-                showError('An unexpected error occurred. Please try again.');
-                console.error(err);
-            } finally {
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Log In';
-            }
-        }
-
-        // Add input focus animations
-        document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.classList.add('focused');
-            });
-            
-            input.addEventListener('blur', function() {
-                this.parentElement.classList.remove('focused');
-            });
-        });
+// Add input focus animations
+document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]').forEach(input => {
+    input.addEventListener('focus', function() {
+        this.parentElement.classList.add('focused');
+    });
+    
+    input.addEventListener('blur', function() {
+        this.parentElement.classList.remove('focused');
+    });
+});
+document.addEventListener('contextmenu', function (e) {
+  e.preventDefault();
+});
+document.addEventListener('keydown', function (e) {
+  if (
+    e.key === 'F12' ||
+    (e.ctrlKey && e.shiftKey && ['I', 'C', 'J'].includes(e.key)) ||
+    (e.ctrlKey && e.key === 'U')
+  ) {
+    e.preventDefault();
+  }
+});
     </script>
-	09jio
 </body>
 </html>
