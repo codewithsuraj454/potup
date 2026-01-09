@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="Potup is a social media platform for sharing posts, connecting with people, and discovering conversations that matter.">
     <title>Potup</title>
     <style>@import url('https://fonts.googleapis.com/css2?family=Edu+NSW+ACT+Cursive:wght@400..700&display=swap');</style>
 	<link rel="icon" type="image/png" href="ChatGPT_Image_Dec_12__2025__03_11_52_PM__1_-removebg-preview.png">
@@ -36,26 +37,27 @@
         <img src="ChatGPT_Image_Dec_12__2025__03_11_52_PM__1_-removebg-preview.png">
     </div>
     
-    <script>
-        setTimeout(() => {
-            if (localStorage.getItem('id')) {
-                window.location.href = 'home.html';
-            } else {
-                window.location.href = 'log-in.html';
-            }
-        }, 1000);
-document.addEventListener('contextmenu', function (e) {
-  e.preventDefault();
-});
-document.addEventListener('keydown', function (e) {
-  if (
-    e.key === 'F12' ||
-    (e.ctrlKey && e.shiftKey && ['I', 'C', 'J'].includes(e.key)) ||
-    (e.ctrlKey && e.key === 'U')
-  ) {
-    e.preventDefault();
-  }
-});
-    </script>
+<script>
+    // Always redirect to home.html after 2 seconds
+    setTimeout(() => {
+        window.location.href = 'home.html';
+    }, 2000);
+
+    // Disable right-click
+    document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+    });
+
+    // Block dev tools shortcuts
+    document.addEventListener('keydown', function (e) {
+        if (
+            e.key === 'F12' ||
+            (e.ctrlKey && e.shiftKey && ['I', 'C', 'J'].includes(e.key)) ||
+            (e.ctrlKey && e.key === 'U')
+        ) {
+            e.preventDefault();
+        }
+    });
+</script>
 </body>
 </html>
