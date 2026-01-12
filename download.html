@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Potup | Get the App</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --accent: #00d2ff;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #0b0e14;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(76, 0, 255, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(0, 210, 255, 0.1) 0px, transparent 50%);
+            font-family: 'Inter', sans-serif;
+            color: white;
+            overflow: hidden;
+        }
+
+        .download-container {
+            width: 90%;
+            max-width: 500px;
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            padding: 50px 30px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        h1 { font-size: 32px; font-weight: 800; margin-bottom: 10px; }
+        p { color: rgba(255,255,255,0.6); margin-bottom: 40px; }
+
+        .platform-box {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* APKPure Android Button */
+        .download-btn {
+            background: white;
+            color: black;
+            padding: 18px;
+            border-radius: 20px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 10px 20px rgba(0, 210, 255, 0.3);
+        }
+
+        .download-btn img {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Coming Soon Desktop Button */
+        .disabled-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: rgba(255, 255, 255, 0.4);
+            padding: 18px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            font-weight: 600;
+            cursor: not-allowed;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .badge {
+            font-size: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: rgba(255,255,255,0.4);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: white; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="download-container">
+        <span class="material-icons" style="font-size: 48px; color: var(--accent); margin-bottom: 20px;">file_download</span>
+        <h1>Get Potup</h1>
+        <p>Experience the next generation of social interaction on all your devices.</p>
+
+        <div class="platform-box">
+            <a href="https://apkpure.com/p/com.example.potup" target="_blank" class="download-btn">
+                <span class="material-icons">android</span>
+                <div style="text-align: left;">
+                    <div style="font-size: 10px; text-transform: uppercase; opacity: 0.7;">Download for Android</div>
+                    <div style="font-size: 16px;">Get it on APKPure</div>
+                </div>
+            </a>
+
+            <div class="disabled-btn">
+                <span class="material-icons">desktop_windows</span>
+                <div style="text-align: left;">
+                    <div style="font-size: 10px; text-transform: uppercase;">Desktop Version</div>
+                    <div style="font-size: 16px;">Coming Soon</div>
+                </div>
+                <span class="badge">Windows & Mac</span>
+            </div>
+        </div>
+
+        <a href="home" class="back-link">Back to Home</a>
+    </div>
+
+</body>
+</html>
