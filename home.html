@@ -3,10 +3,6 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="keywords" content="social media, potup, posts, global">
-<meta name="description" content="Potup is a global social media platform to post, share, and connect worldwide.">
-<meta name="robots" content="index, follow">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Potup</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -79,10 +75,10 @@
           </div>
           
           <h3 class="step-title">Account Details</h3>
+		  <h2 class="step-title">Username can contain only letters, underscores and numbers.</h2> 
           
           <div class="input-group">
             <span class="material-icons input-icon">person</span>
-            		      <p class="user0">Username can only contain letters, underscores and numbers.</p>
             <input type="text" id="signupUsername" placeholder="Username" required minlength="3" maxlength="20">
           </div>
           
@@ -125,7 +121,7 @@
             <input type="text" id="signupFullName" placeholder="Full Name" required>
           </div>
           
-          <div class="input-group">
+          <div class="input-group" style="background-color: gray;">
             <span class="material-icons input-icon">cake</span>
             <input type="date" id="signupDob" placeholder="Date of Birth" required>
             <label class="floating-label">Date of Birth</label>
@@ -150,7 +146,7 @@
           <div class="auth-error" id="signupError"></div>
           
           <div class="step-buttons">
-            <button type="button" class="auth-btn secondary" onclick="goToStep1()">
+            <button type="button" class="auth-btn secondary" onclick="goToStep2()">
               <span class="material-icons">arrow_back</span>
               Back
             </button>
@@ -887,5 +883,3 @@
 </div>
 </body>
 </html>
-
-
