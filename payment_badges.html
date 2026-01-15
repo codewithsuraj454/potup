@@ -349,7 +349,7 @@ function goBack() {
 function isValidUTR(utr) {
   // Check length and numeric
   if (utr.length !== 12 || !/^\d+$/.test(utr)) {
-    return { valid: false, reason: "Must be 12 digits" };
+    return { valid: false, reason: "Invalid UTR number" };
   }
   
   // List of invalid patterns
@@ -438,7 +438,7 @@ function isValidUTR(utr) {
   // Check against all patterns
   for (let pattern of repeatingPatterns) {
     if (pattern.test(utr)) {
-      return { valid: false, reason: "Invalid UTR pattern" };
+      return { valid: false, reason: "Invalid UTR number" };
     }
   }
   
@@ -528,3 +528,4 @@ sb.auth.onAuthStateChange((event, session) => {
 
 </body>
 </html>
+
