@@ -1026,7 +1026,7 @@ border: 1px solid var(--glass-border);
 width: 100%;
 max-height: 300px;
 object-fit: cover;
-display: block;
+display: none;
 }
 
 .remove-image-btn {
@@ -5190,3 +5190,4 @@ select:-webkit-autofill:focus {
   25% { transform: translateX(-5px); }
   75% { transform: translateX(5px); }
 }
+
