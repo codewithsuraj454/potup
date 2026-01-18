@@ -3594,81 +3594,168 @@ function addPoll() {
 }
 
 // ===== DEVICES =====
+// ==============================
+// Device Info System (Safe)
+// ==============================
+
+const DEVICE_CACHE_KEY = "device_info_cache_v1";
+const DEVICE_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
 async function populateDevices() {
-  const devicesList = getElement('devicesList');
+  const devicesList = getElement("devicesList");
   if (!devicesList) return;
 
-  try {
-    const deviceInfo = getDeviceInfo();
-    const ip = await getIPAddress();
-    const location = await getLocation(ip);
+  // Render instantly with local info
+  const deviceInfo = getDeviceInfo();
 
-    devicesList.innerHTML = '';
+  devicesList.innerHTML = "";
 
-    const currentDevice = document.createElement('div');
-    currentDevice.className = 'settings-item no-hover';
-    currentDevice.innerHTML = `
-      <div class="settings-item-left">
-        <span class="material-icons">${deviceInfo.deviceIcon}</span>
-        <div class="item-text">
-          <h4>${deviceInfo.osName} · ${deviceInfo.browserName}</h4>
-          <p>IP: ${ip} · ${location} (Current)</p>
-        </div>
+  const row = document.createElement("div");
+  row.className = "settings-item no-hover";
+  row.innerHTML = `
+    <div class="settings-item-left">
+      <span class="material-icons">${deviceInfo.deviceIcon}</span>
+      <div class="item-text">
+        <h4>${deviceInfo.osName} · ${deviceInfo.browserName}</h4>
+        <p id="deviceLocationLine">Loading network info...</p>
       </div>
-      <span class="status-indicator online"></span>
-    `;
-    devicesList.appendChild(currentDevice);
-  } catch (error) {
-    console.error('Failed to populate devices:', error);
-  }
+    </div>
+    <span class="status-indicator online"></span>
+  `;
+  devicesList.appendChild(row);
+
+  // Load network info in background (never block UI)
+  loadNetworkInfoSafe()
+    .then(({ ip, location }) => {
+      const line = row.querySelector("#deviceLocationLine");
+      if (line) {
+        line.textContent = `IP: ${ip} · ${location} (Current)`;
+      }
+    })
+    .catch(() => {
+      const line = row.querySelector("#deviceLocationLine");
+      if (line) {
+        line.textContent = `IP: Unknown · Unknown location (Current)`;
+      }
+    });
 }
+
+// ==============================
+// CACHED NETWORK INFO
+// ==============================
+
+async function loadNetworkInfoSafe() {
+  // Check cache first
+  try {
+    const cached = localStorage.getItem(DEVICE_CACHE_KEY);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (Date.now() - parsed.time < DEVICE_CACHE_TTL) {
+        return parsed.data;
+      }
+    }
+  } catch {}
+
+  // Fetch fresh (best effort)
+  const ip = await getIPAddressSafe();
+  const location = await getLocationSafe(ip);
+
+  const data = { ip, location };
+
+  // Save cache
+  try {
+    localStorage.setItem(
+      DEVICE_CACHE_KEY,
+      JSON.stringify({ time: Date.now(), data })
+    );
+  } catch {}
+
+  return data;
+}
+
+// ==============================
+// DEVICE INFO (LOCAL)
+// ==============================
 
 function getDeviceInfo() {
   const ua = navigator.userAgent;
-  let deviceIcon = 'computer';
-  let osName = 'Unknown OS';
-  let browserName = 'Unknown Browser';
+  let deviceIcon = "computer";
+  let osName = "Unknown OS";
+  let browserName = "Unknown Browser";
 
-  // Detect OS
-  if (ua.includes('Win')) osName = 'Windows';
-  else if (ua.includes('Mac')) osName = 'macOS';
-  else if (ua.includes('Linux')) osName = 'Linux';
-  else if (ua.includes('Android')) {
-    osName = 'Android';
-    deviceIcon = 'smartphone';
-  } else if (ua.includes('iPhone') || ua.includes('iPad')) {
-    osName = ua.includes('iPad') ? 'iPad' : 'iPhone';
-    deviceIcon = 'smartphone';
+  // OS detection
+  if (ua.includes("Win")) osName = "Windows";
+  else if (ua.includes("Mac")) osName = "macOS";
+  else if (ua.includes("Linux")) osName = "Linux";
+  else if (ua.includes("Android")) {
+    osName = "Android";
+    deviceIcon = "smartphone";
+  } else if (ua.includes("iPhone") || ua.includes("iPad")) {
+    osName = ua.includes("iPad") ? "iPad" : "iPhone";
+    deviceIcon = "smartphone";
   }
 
-  // Detect Browser
-  if (ua.includes('Chrome') && !ua.includes('Edg')) browserName = 'Chrome';
-  else if (ua.includes('Safari') && !ua.includes('Chrome')) browserName = 'Safari';
-  else if (ua.includes('Firefox')) browserName = 'Firefox';
-  else if (ua.includes('Edg')) browserName = 'Edge';
-  else if (ua.includes('Opera') || ua.includes('OPR')) browserName = 'Opera';
+  // Browser detection
+  if (ua.includes("Edg")) browserName = "Edge";
+  else if (ua.includes("OPR") || ua.includes("Opera")) browserName = "Opera";
+  else if (ua.includes("Firefox")) browserName = "Firefox";
+  else if (ua.includes("Chrome")) browserName = "Chrome";
+  else if (ua.includes("Safari")) browserName = "Safari";
 
   return { deviceIcon, osName, browserName };
 }
 
-async function getIPAddress() {
+// ==============================
+// IP FETCH (SAFE)
+// ==============================
+
+async function getIPAddressSafe() {
   try {
-    const response = await fetch('https://api.ipify.org?format=json');
-    const data = await response.json();
-    return data.ip || 'Unknown';
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+
+    const res = await fetch("https://api.ipify.org?format=json", {
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+
+    const data = await res.json();
+    return data.ip || "Unknown";
   } catch {
-    return 'Unknown';
+    return "Unknown";
   }
 }
 
-async function getLocation(ip) {
+// ==============================
+// GEO FETCH (SAFE)
+// ==============================
+
+async function getLocationSafe(ip) {
   try {
-    if (ip === 'Unknown') return 'Unknown location';
-    const response = await fetch(`https://ipapi.co/${ip}/json/`);
-    const data = await response.json();
-    return data.city && data.country_name ? `${data.city}, ${data.country_name}` : 'Unknown location';
+    if (!ip || ip === "Unknown") return "Unknown location";
+
+    // ipapi is unreliable from browser → so we treat it as optional
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+
+    const res = await fetch(`https://ipapi.co/${ip}/json/`, {
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+
+    if (!res.ok) throw new Error("Geo blocked");
+
+    const data = await res.json();
+
+    if (data.city && data.country_name) {
+      return `${data.city}, ${data.country_name}`;
+    }
+
+    return "Unknown location";
   } catch {
-    return 'Unknown location';
+    return "Unknown location";
   }
 }
 
