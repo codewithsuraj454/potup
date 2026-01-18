@@ -50,6 +50,48 @@
       position: relative;
     }
     
+    /* Splash Screen Styles */
+    #splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    
+    #splash-screen.active {
+      display: flex;
+    }
+    
+    .splash-logo {
+      width: 150px;
+      height: 150px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    .splash-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: brightness(0) invert(1) drop-shadow(0 10px 40px rgba(255, 255, 255, 0.6));
+    }
+    
+
+    
+    /* Bot Content Styles */
+    #bot-content {
+      display: none;
+    }
+    
+    #bot-content.active {
+      display: block;
+    }
+    
     /* Animated background */
     .bg-animation {
       position: fixed;
@@ -125,8 +167,6 @@
       max-width: 800px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
-    
-
     
     .logo-static {
       width: 120px;
@@ -383,6 +423,7 @@
     }
     
     @media (max-width: 768px) {
+      .splash-logo { width: 120px; height: 120px; }
       .hero { padding: 80px 20px 40px; }
       .glass-card { padding: 40px 30px; }
       .logo-static { width: 100px; height: 100px; }
@@ -398,102 +439,159 @@
     }
     
     @media (max-width: 480px) {
+      .splash-logo { width: 100px; height: 100px; }
       .glass-card { padding: 30px 20px; }
       .content-glass { padding: 30px 20px; }
     }
   </style>
 </head>
 <body>
-  <div class="bg-animation">
-    <div class="sphere sphere-1"></div>
-    <div class="sphere sphere-2"></div>
-    <div class="sphere sphere-3"></div>
+  <!-- Splash Screen for Normal Users -->
+  <div id="splash-screen">
+    <div class="splash-logo">
+      <img src="https://i.ibb.co/845ftzzJ/Chat-GPT-Image-Dec-12-2025-03-11-52-PM-1-removebg-preview.png" alt="Potup Logo">
+    </div>
   </div>
 
-  <section class="hero">
-    <div class="glass-card">
-      <div class="logo-static">
-        <img src="https://i.ibb.co/845ftzzJ/Chat-GPT-Image-Dec-12-2025-03-11-52-PM-1-removebg-preview.png" alt="Potup Logo">
+  <!-- Bot Content (SEO) -->
+  <div id="bot-content">
+    <div class="bg-animation">
+      <div class="sphere sphere-1"></div>
+      <div class="sphere sphere-2"></div>
+      <div class="sphere sphere-3"></div>
+    </div>
+
+    <section class="hero">
+      <div class="glass-card">
+        <div class="logo-static">
+          <img src="https://i.ibb.co/845ftzzJ/Chat-GPT-Image-Dec-12-2025-03-11-52-PM-1-removebg-preview.png" alt="Potup Logo">
+        </div>
+        <h1>Potup</h1>
+        <p class="tagline">
+          A global social media platform where anyone can post, share, reply, and connect with people worldwide.
+        </p>
+        <a href="https://potup.netlify.app/home" class="cta-button">
+          <span>Get Started</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
       </div>
-      <h1>Potup</h1>
-      <p class="tagline">
-        A global social media platform where anyone can post, share, reply, and connect with people worldwide.
-      </p>
-      <a href="https://potup.netlify.app/home" class="cta-button">
-        <span>Get Started</span>
-        <i class="fas fa-arrow-right"></i>
-      </a>
-    </div>
-  </section>
+    </section>
 
-  <section class="features">
-    <div class="container">
-      <h2 class="section-title">Why Choose Potup?</h2>
-      <div class="feature-grid">
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fas fa-globe"></i></div>
-          <h3>Global Reach</h3>
-          <p>Connect with millions of users worldwide and share your voice on a truly global platform.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fas fa-bolt"></i></div>
-          <h3>Lightning Fast</h3>
-          <p>Experience instant posting, real-time updates, and seamless interactions without any lag.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fas fa-lock"></i></div>
-          <h3>Privacy First</h3>
-          <p>Your data is protected with industry-leading security measures and transparent privacy policies.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fas fa-users"></i></div>
-          <h3>Community Driven</h3>
-          <p>Join vibrant communities, discover trending topics, and engage in meaningful conversations.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
-          <h3>Mobile & Desktop</h3>
-          <p>Access Potup from any device with our responsive design and seamless experience.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fas fa-palette"></i></div>
-          <h3>Clean Interface</h3>
-          <p>Enjoy a beautiful, intuitive design that makes social networking simple and enjoyable.</p>
+    <section class="features">
+      <div class="container">
+        <h2 class="section-title">Why Choose Potup?</h2>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-globe"></i></div>
+            <h3>Global Reach</h3>
+            <p>Connect with millions of users worldwide and share your voice on a truly global platform.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+            <h3>Lightning Fast</h3>
+            <p>Experience instant posting, real-time updates, and seamless interactions without any lag.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-lock"></i></div>
+            <h3>Privacy First</h3>
+            <p>Your data is protected with industry-leading security measures and transparent privacy policies.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-users"></i></div>
+            <h3>Community Driven</h3>
+            <p>Join vibrant communities, discover trending topics, and engage in meaningful conversations.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
+            <h3>Mobile & Desktop</h3>
+            <p>Access Potup from any device with our responsive design and seamless experience.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-palette"></i></div>
+            <h3>Clean Interface</h3>
+            <p>Enjoy a beautiful, intuitive design that makes social networking simple and enjoyable.</p>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="content-section">
-    <div class="content-glass">
-      <h2>What is Potup?</h2>
-      <p>
-        Potup is a modern social media platform built for open, public conversations. It allows users to create posts,
-        reply to discussions, and share content that can be seen by anyone around the world. The goal of Potup is to make
-        communication simple, fast, and globally accessible.
-      </p>
+    <section class="content-section">
+      <div class="content-glass">
+        <h2>What is Potup?</h2>
+        <p>
+          Potup is a modern social media platform built for open, public conversations. It allows users to create posts,
+          reply to discussions, and share content that can be seen by anyone around the world. The goal of Potup is to make
+          communication simple, fast, and globally accessible.
+        </p>
 
-      <h2>Key Features</h2>
-      <ul>
-        <li>Create public posts visible to everyone</li>
-        <li>Advanced reply and repost system</li>
-        <li>Personalized global content feed</li>
-        <li>Fast and intuitive interface</li>
-        <li>Accessible from anywhere in the world</li>
-        <li>Real-time notifications</li>
-        <li>Rich media support</li>
-      </ul>
+        <h2>Key Features</h2>
+        <ul>
+          <li>Create public posts visible to everyone</li>
+          <li>Advanced reply and repost system</li>
+          <li>Personalized global content feed</li>
+          <li>Fast and intuitive interface</li>
+          <li>Accessible from anywhere in the world</li>
+          <li>Real-time notifications</li>
+          <li>Rich media support</li>
+        </ul>
 
-      <h2>Get Started Today</h2>
-      <p>
-        You can start using Potup instantly by visiting <strong>https://potup.netlify.app/</strong>.
-        No complicated setup is required. Join the global conversation and share what matters to you.
-      </p>
-    </div>
-  </section>
+        <h2>Get Started Today</h2>
+        <p>
+          You can start using Potup instantly by visiting <strong>https://potup.netlify.app/</strong>.
+          No complicated setup is required. Join the global conversation and share what matters to you.
+        </p>
+      </div>
+    </section>
 
-  <footer>
-    © 2026 Potup Inc. All rights reserved.
-  </footer>
+    <footer>
+      © 2026 Potup Inc. All rights reserved.
+    </footer>
+  </div>
+
+  <script>
+    // Bot detection function
+    function isBot() {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const botPatterns = [
+        'bot', 'crawler', 'spider', 'crawling', 'facebook', 'whatsapp',
+        'telegram', 'twitter', 'linkedin', 'slack', 'discord', 'googlebot',
+        'bingbot', 'slurp', 'duckduckbot', 'baiduspider', 'yandexbot',
+        'sogou', 'exabot', 'facebot', 'ia_archiver', 'preview', 'prerender'
+      ];
+      
+      // Check user agent
+      for (let pattern of botPatterns) {
+        if (userAgent.includes(pattern)) {
+          return true;
+        }
+      }
+      
+      // Check for headless browsers
+      if (navigator.webdriver) {
+        return true;
+      }
+      
+      // Check for missing features typical in bots
+      if (!navigator.languages || navigator.languages.length === 0) {
+        return true;
+      }
+      
+      return false;
+    }
+
+    // Determine what to show
+    if (isBot()) {
+      // Show full content for bots (SEO)
+      document.getElementById('bot-content').classList.add('active');
+    } else {
+      // Show splash screen for normal users
+      document.getElementById('splash-screen').classList.add('active');
+      
+      // Redirect after 2 seconds
+      setTimeout(() => {
+        window.location.href = 'https://potup.netlify.app/home';
+      }, 3000);
+    }
+  </script>
 </body>
-</html>
+</html> 
