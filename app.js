@@ -1631,6 +1631,7 @@ async function submitReply() {
 async function openProfileModal(username) {
   if (!username) return;
 
+  // 1. Load Profile Data
   const { data } = await sb
     .from('user_profiles')
     .select('*')
@@ -1644,17 +1645,31 @@ async function openProfileModal(username) {
 
   viewedUserProfile = data;
 
+  // 2. Set Avatar & Text
   safeSetSrc('modalAvatar', data.avatar_url || 'https://i.imgur.com/6VBx3io.png');
   safeSetText('modalUserId', data.user_id);
   safeSetText('modalBio', data.bio || 'No bio yet.');
   safeSetText('modalFollowers', data.followers || 0);
 
+  // 3. Set Banner
+  const modalBanner = getElement('modalBanner');
+  if (modalBanner) {
+    if (data.banner_url) {
+      modalBanner.style.backgroundImage = `url(${data.banner_url})`;
+    } else {
+      // Default gradient banner
+      modalBanner.style.backgroundImage = 'linear-gradient(135deg, #4c1d95 0%, #1d4ed8 100%)';
+    }
+  }
+
+  // 4. Set Following Count
   const { data: followingData } = await sb
     .from('follows')
     .select('id')
     .eq('follower_id', data.id);
   safeSetText('modalFollowing', followingData ? followingData.length : 0);
 
+  // 5. Set Badges
   const modalBadges = getElement('modalBadges');
   if (modalBadges) {
     modalBadges.innerHTML = '';
@@ -1666,10 +1681,71 @@ async function openProfileModal(username) {
     }
   }
 
+  // 6. Update Follow Button
   await updateModalFollowButton();
 
+  // 7. Load Recent Posts in Modal
+  await loadModalUserPosts(data.user_id);
+
+  // 8. Show Modal
   const modal = getElement('profileModal');
   if (modal) modal.classList.add('show');
+}
+
+// Helper to load posts for the modal
+async function loadModalUserPosts(username) {
+  const container = getElement('modalUserPosts');
+  if (!container) return;
+
+  container.innerHTML = '<div class="loading-spinner" style="padding: 20px;"><div class="spinner"></div></div>';
+
+  try {
+    const { data: posts } = await sb
+      .from('posts')
+      .select('*')
+      .eq('author', username)
+      .order('created_at', { ascending: false })
+      .limit(5); // Limit to 5 recent posts
+
+    container.innerHTML = '';
+
+    if (!posts || posts.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state" style="padding: 20px; text-align: center; color: var(--text-secondary);">
+          <span class="material-icons" style="font-size: 32px; opacity: 0.5;">post_add</span>
+          <p style="font-size: 13px; margin-top: 8px;">No posts yet</p>
+        </div>
+      `;
+      return;
+    }
+
+    posts.forEach(post => {
+      const postEl = document.createElement('div');
+      postEl.className = 'modal-post-item';
+      
+      const timeAgo = getTimeAgo(new Date(post.created_at));
+      
+      postEl.innerHTML = `
+        <span class="post-time">${timeAgo}</span>
+        ${post.content ? `<p class="post-text">${escapeHtml(post.content)}</p>` : ''}
+        ${post.image_url ? `<img class="post-img" src="${post.image_url}">` : ''}
+      `;
+      
+      // Allow viewing full post on click
+      postEl.onclick = () => {
+        closeProfileModal();
+        // Here you would navigate to the full post logic if you have it
+        // For now, let's just show a toast
+        // showToast('Opening post...', 'info');
+      };
+      
+      container.appendChild(postEl);
+    });
+
+  } catch (error) {
+    console.error('Error loading modal posts:', error);
+    container.innerHTML = '<div class="error-state"><p>Failed to load posts</p></div>';
+  }
 }
 
 function closeProfileModal() {
@@ -1678,6 +1754,7 @@ function closeProfileModal() {
   viewedUserProfile = null;
 }
 
+// (Keep updateModalFollowButton and toggleModalFollow as they were, they are correct)
 async function updateModalFollowButton() {
   const btn = getElement('modalFollowBtn');
   if (!btn || !viewedUserProfile) return;
