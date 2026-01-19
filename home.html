@@ -700,22 +700,41 @@
 <!-- Profile Modal (Quick View) -->
 <div id="profileModal" class="modal">
   <div class="modal-box">
+    <!-- Close Button -->
     <span class="close" onclick="closeProfileModal()">✕</span>
-    <img id="modalAvatar" class="modal-avatar" src="https://i.imgur.com/6VBx3io.png">
-    <div class="modal-content">
-      <div class="modal-username" id="modalUserId"></div>
-      <div id="modalBadges" class="modal-badges"></div>
-      <p id="modalBio" class="modal-bio"></p>
-      <div class="modal-stats">
-        <span><strong id="modalFollowers">0</strong> Followers</span>
-        <span><strong id="modalFollowing">0</strong> Following</span>
+    
+    <!-- New Banner Area -->
+    <div id="modalBanner" class="profile-banner-modal"></div>
+    
+    <!-- Profile Info -->
+    <div class="modal-header-content">
+      <img id="modalAvatar" class="modal-avatar" src="https://i.imgur.com/6VBx3io.png">
+      
+      <div class="modal-content">
+        <div class="modal-username" id="modalUserId"></div>
+        <div id="modalBadges" class="modal-badges"></div>
+        <p id="modalBio" class="modal-bio"></p>
+        
+        <div class="modal-stats">
+          <span><strong id="modalFollowers">0</strong> Followers</span>
+          <span><strong id="modalFollowing">0</strong> Following</span>
+        </div>
+        
+        <div class="modal-actions">
+          <button id="modalFollowBtn" class="modal-follow-btn">Follow</button>
+          <button class="modal-view-btn" onclick="viewFullProfile()">View Profile</button>
+          <button class="modal-share-btn" onclick="shareModalProfile()">
+            <span class="material-icons">share</span>
+          </button>
+        </div>
       </div>
-      <div class="modal-actions">
-        <button id="modalFollowBtn" class="modal-follow-btn">Follow</button>
-        <button class="modal-view-btn" onclick="viewFullProfile()">View Profile</button>
-        <button class="modal-share-btn" onclick="shareModalProfile()">
-          <span class="material-icons">share</span>
-        </button>
+    </div>
+
+    <!-- New Posts Section -->
+    <div class="modal-posts-section">
+      <h4>Recent Posts</h4>
+      <div id="modalUserPosts" class="modal-posts-list">
+        <!-- Posts will be loaded here via JS -->
       </div>
     </div>
   </div>
